@@ -3,7 +3,8 @@ const btnGerar = document.getElementById('btnGerar');
 const feriados = [ '01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '25/12' ];
 
 // configs planilha
-function desenharAbaDia(workbook, nomeDaAba) {
+// Note que adicionei um novo parâmetro: 'nomeAbaAnterior'
+function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     const sheet = workbook.addWorksheet(nomeDaAba.replace('/', '-'));
 
     sheet.columns = [
@@ -20,16 +21,72 @@ function desenharAbaDia(workbook, nomeDaAba) {
         { header: 'Crediário', key: 'cred', width: 12 },       // K
         { header: 'PIX', key: 'pix', width: 12 },              // L
         { header: 'Saldo Dev', key: 'saldodev', width: 12 },   // M
-        { header: 'Pag Saldo', key: 'pg1', width: 12 },        // N
-        { header: 'Pag Saldo', key: 'pg2', width: 12 },        // O
-        { header: 'Pag Saldo', key: 'pg3', width: 12 },        // P
+        { header: 'Pag Dinheiro', key: 'pg1', width: 12 },     // N
+        { header: 'Pag CD', key: 'pg2', width: 12 },           // O
+        { header: 'Pag CC', key: 'pg3', width: 12 },           // P
         { header: 'Consulta', key: 'consulta', width: 12 },    // Q
         { header: 'Saída', key: 'saida', width: 12 },          // R
-        { header: 'Total Liq', key: 'liq', width: 15 },        // S (Rosa)
+        { header: 'Total Liq', key: 'liq', width: 15 },        // S (Vai ser ROSA)
         { header: '', key: 'vazio', width: 5 },                // T (Espaço)
         { header: 'RESUMO', key: 'res_label', width: 22 },     // U
         { header: '', key: 'res_valor', width: 15 }            // V
     ];
+
+    // cabeçalho
+    const row1 = sheet.getRow(1);
+    row1.font = { bold: true };
+    row1.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFEFEFEF' } 
+    };
+
+    // "Total Liq" (S) de ROSA até a linha 35
+    for(let i = 1; i <= 35; i++) {
+        const cell = sheet.getCell(`S${i}`);
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFEBCEE3' } // Rosa Claro (Igual da foto)
+        };
+    }
+
+    // --- AQUI ENTRAM AS FÓRMULAS E O RESUMO LATERAL ---
+    
+    // Exemplo: Colocando rótulos fixos na coluna U (Resumo)
+    sheet.getCell('U4').value = "RELATÓRIO DIÁRIO";
+    sheet.getCell('U5').value = "Total dinheiro";
+    sheet.getCell('U6').value = "Total CD";
+    sheet.getCell('U7').value = "Total CC";
+    sheet.getCell('U8').value = "PIX";
+    sheet.getCell('U9').value = "Crediário";
+    sheet.getCell('U10').value = "Total Vendas Bruto";
+    sheet.getCell('U23').value = "Total em Caixa Inicial";
+    sheet.getCell('U24').value = "Total em Caixa Final";
+
+    // --- FÓRMULAS LOCAIS (DENTRO DA MESMA PLANILHA) ---
+    // Sintaxe: { formula: 'SOMA(A1:A10)' }
+    
+    // Exemplo: Total de vendas (Soma da coluna F, linhas 2 a 32)
+    sheet.getCell('V10').value = { formula: 'SUM(F2:F32)' }; 
+    
+    // --- FÓRMULA QUE PUXA DO DIA ANTERIOR (O PULO DO GATO) ---
+    // Onde: V23 é o Caixa Inicial
+    // Onde: V24 é o Caixa Final (da aba anterior)
+
+    if (nomeAbaAnterior) {
+        // Se EXISTE um dia anterior, puxa o valor dele
+        // O Excel precisa de aspas simples no nome da aba: '01-03'!V24
+        sheet.getCell('V23').value = { 
+            formula: `'${nomeAbaAnterior}'!V24` 
+        };
+    } else {
+        // Se NÃO existe dia anterior (é o dia 01 do mês), começa com 0 ou valor fixo
+        sheet.getCell('V23').value = 0; 
+    }
+
+    // Caixa Final (Soma do Inicial + Entradas - Saídas...) - Escreva sua lógica aqui
+    sheet.getCell('V24').value = { formula: 'V23 + V10' }; // Exemplo simples
 }
 
 
