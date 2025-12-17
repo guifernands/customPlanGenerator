@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Planilhas</title>
+    <title>Gerador de Planilhas - Vendas</title>
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- biblioteca ExcelJS (customização da planilha) e FileSaver (download da planilha) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body>
-    
+
+    <div class="container">
+        <h1>Gerador de Caixa</h1>
+        <p>Sistema de automação de planilhas de vendas.</p>
+
+        <div class="input-group">
+            <label for="mesInput">Mês Inicial:</label>
+            <input type="month" id="mesInput">
+        </div>
+
+        <button id="btnGerar">Baixar Planilha Teste</button>
+        <p id="status"></p>
+    </div>
+
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
