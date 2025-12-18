@@ -2,10 +2,10 @@ const btnGerar = document.getElementById('btnGerar');
 
 const feriados = [ '01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '25/12' ];
 
-// configs planilha
 function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     const sheet = workbook.addWorksheet(nomeDaAba.replace('/', '-'));
 
+    // colunas
     sheet.columns = [
         { header: 'Vendedor', key: 'vendedor', width: 10 },    // A
         { header: 'NF/COMP', key: 'nf', width: 12 },           // B
@@ -25,55 +25,39 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
         { header: 'Pag CC', key: 'pg3', width: 12 },           // P
         { header: 'Consulta', key: 'consulta', width: 12 },    // Q
         { header: 'Saída', key: 'saida', width: 12 },          // R
-        { header: 'Venda', key: 'liq', width: 15 },        // S
+        { header: 'Venda', key: 'liq', width: 15 },            // S
         { header: '', key: 'vazio', width: 5 },                // T
         { header: 'RESUMO', key: 'res_label', width: 22 },     // U
         { header: '', key: 'res_valor', width: 15 }            // V
     ];
 
-    // cabeçalho
+    // estilo cabeçalho
     const row1 = sheet.getRow(1);
+    
     row1.font = { bold: true };
-    row1.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFEFEFEF' } 
-    };
+    row1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFEFEF' } };
 
-    // borda no cabeçalho
     row1.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-        if (colNumber <= 22) {
-            cell.border = {
-                top: { style: 'thin' },
-                left: { style: 'thin' },
-                bottom: { style: 'thin' },
-                right: { style: 'thin' }
+        if (colNumber <= 22 && colNumber != 20) {
+            cell.border = { 
+                top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} 
             };
             cell.alignment = { vertical: 'middle', horizontal: 'center' };
         }
     });
 
-    // "Vendas" (S) de ROSA até a linha 35
+    // coluna vendas rosa e fórmulas
     for(let i = 1; i <= 40; i++) {
         const cell = sheet.getCell(`S${i}`);
-        cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFEBCEE3' }
-        };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBCEE3' } };
         if (i >= 2) cell.value = { formula: `SUM(F${i}+Q${i})` };
     }
 
-    // coluna resumos em negrito
-    sheet.getColumn('res_label').font = { 
-        name: 'Arial',
-        bold: true 
-    };
-
-    // faz o merge das células
+    // estilos pontuais
+    sheet.getColumn('res_label').font = { name: 'Arial', bold: true };
     sheet.mergeCells('U1:V1');
 
-    // TOTAIS LATERAL COM FÓRMULAS 
+    // fórmulas laterais
     sheet.getCell('U4').value = "Total dinheiro";
     sheet.getCell('V4').value = { formula: 'SUM(G2:G40)' };
 
@@ -98,11 +82,22 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
     sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
 
+    // lógica dia anterior
     sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
-    sheet.getCell('V13').value = 0; // sem fórmula?
+    sheet.getCell('U23').value = "Total em Caixa Inicial";
+
+    if (nomeAbaAnterior) {
+        // if existe dia anterior
+        sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; 
+        sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; 
+    } else {
+        // if é o primeiro dia
+        sheet.getCell('V13').value = 0;
+        sheet.getCell('V23').value = 0;
+    }
 
     sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
-    sheet.getCell('V14').value = { formula: 'SUM(V12:V13)' };
+    sheet.getCell('V14').value = { formula: 'V12+V13' }; 
 
     sheet.getCell('U16').value = "Total Saldo Devedor";
     sheet.getCell('V16').value = { formula: 'SUM(M2:M40)' };
@@ -117,34 +112,29 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('V20').value = { formula: 'SUM(V12-V19)' };
 
     sheet.getCell('U22').value = "Total Sangria";
-    sheet.getCell('U23').value = "Total em Caixa Inicial";
     sheet.getCell('U24').value = "Total em Caixa Final";
-    sheet.getCell('V24').value = { formula: 'SUM(V4+V23)-V22-V19' };
-
-    
+    sheet.getCell('V24').value = { formula: '(V4+V23)-V22-V19' };
 }
-
 
 // botão
 btnGerar.addEventListener('click', async function() {
     const inputData = document.getElementById('mesInput').value;
 
-    // if estiver vazio...
     if(!inputData) {
         alert("Por favor, selecione um mês!");
         return;
     }
 
-    // por padrao a data vem "2025-04", se separarmos ela pelo '-' temos o mes e o ano separados, vem em String naturalmente e o .map(Number) converte
     const partes = inputData.split('-').map(Number);
+    const ano = partes[0];
+    const mes = partes[1];
 
-    const ano = partes[0]; // pega o primeiro numero (2025)
-    const mes = partes[1]; // pega o segundo numero (04)
-
-    // criar arquivo 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Sistema de Vendas";
-
+    
+    // Variável para guardar a aba anterior
+    let nomeAbaAnterior = null;
+    
     let dataCorrente = new Date(ano, mes - 1, 1);
 
     console.clear();
@@ -153,38 +143,29 @@ btnGerar.addEventListener('click', async function() {
     for(let i = 0; i < 2; i++) {
         let anoLoop = dataCorrente.getFullYear();
         let mesLoop = dataCorrente.getMonth();
-
-        //                          ano, mes e dia
         let ultimoDia = new Date(anoLoop, mesLoop + 1, 0).getDate();
 
         console.log(`\n🔎 Mês ${mesLoop + 1}/${anoLoop} tem ${ultimoDia} dias.`);
 
-        // --- NOVO: Loop dos Dias (Do dia 1 até o último) ---
         for (let dia = 1; dia <= ultimoDia; dia++) {
             
-            // data específica do dia
             let dataDoDia = new Date(anoLoop, mesLoop, dia);
-            
-            // pega o dia da semana (0 = domingo, 1 = segunda ... 6 = sabado)
             let diaSemana = dataDoDia.getDay();
 
-            // formata para "DD/MM"
-            let diaTexto = String(dia).padStart(2, '0'); // preenche o espaço de 2 caracteres com zero caso só tenha 1 caracter ou nenhum caso já tenha 2 
+            let diaTexto = String(dia).padStart(2, '0');
             let mesTexto = String(mesLoop + 1).padStart(2, '0');
             let chaveData = `${diaTexto}/${mesTexto}`;
 
-            // if for dia util
             if (diaSemana !== 0 && !feriados.includes(chaveData)) {
                 
-                desenharAbaDia(workbook, chaveData);
+                desenharAbaDia(workbook, chaveData, nomeAbaAnterior);
+                nomeAbaAnterior = chaveData.replace('/', '-');
             }
         }
-
-        // converte o mês e já faz virada de ano sozinho
         dataCorrente.setMonth(dataCorrente.getMonth() + 1);
     }
 
-    // download
+    // Download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     saveAs(blob, `Relatorio_Vendas_${inputData}.xlsx`);
