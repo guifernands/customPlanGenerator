@@ -41,13 +41,14 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     };
 
     // "Vendas" (S) de ROSA até a linha 35
-    for(let i = 1; i <= 35; i++) {
+    for(let i = 1; i <= 40; i++) {
         const cell = sheet.getCell(`S${i}`);
         cell.fill = {
             type: 'pattern',
             pattern: 'solid',
             fgColor: { argb: 'FFEBCEE3' }
         };
+        if (i >= 2) cell.value = { formula: `SUM(F${i}+Q${i})` };
     }
 
     // coluna resumos em negrito
@@ -91,39 +92,20 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('V16').value = { formula: 'SUM(M2:M40)' };
 
     sheet.getCell('U17').value = "Total Saldo Pago";
-    sheet.getCell('V10').value = { formula: 'SUM(N2:P40)' };
+    sheet.getCell('V17').value = { formula: 'SUM(N2:P40)' };
 
     sheet.getCell('U19').value = "Total Saída";
-    sheet.getCell('V10').value = { formula: 'SUM(F2:F32)' };
+    sheet.getCell('V19').value = { formula: 'SUM(R2:R40)' };
 
     sheet.getCell('U20').value = "Total Líquido Diário";
+    sheet.getCell('V20').value = { formula: 'SUM(V12-V19)' };
 
-    sheet.getCell('U22').value = "Total Saída";
+    sheet.getCell('U22').value = "Total Sangria";
     sheet.getCell('U23').value = "Total em Caixa Inicial";
     sheet.getCell('U24').value = "Total em Caixa Final";
+    sheet.getCell('V24').value = { formula: 'SUM(V4+V23)-V22-V19' };
 
-    // --- FÓRMULAS LOCAIS (DENTRO DA MESMA PLANILHA) ---
-    // Sintaxe: { formula: 'SOMA(A1:A10)' }
     
-    // Exemplo: Total de vendas (Soma da coluna F, linhas 2 a 32) 
-    
-    // --- FÓRMULA QUE PUXA DO DIA ANTERIOR (O PULO DO GATO) ---
-    // Onde: V23 é o Caixa Inicial
-    // Onde: V24 é o Caixa Final (da aba anterior)
-
-    if (nomeAbaAnterior) {
-        // Se EXISTE um dia anterior, puxa o valor dele
-        // O Excel precisa de aspas simples no nome da aba: '01-03'!V24
-        sheet.getCell('V23').value = { 
-            formula: `'${nomeAbaAnterior}'!V24` 
-        };
-    } else {
-        // Se NÃO existe dia anterior (é o dia 01 do mês), começa com 0 ou valor fixo
-        sheet.getCell('V23').value = 0; 
-    }
-
-    // Caixa Final (Soma do Inicial + Entradas - Saídas...) - Escreva sua lógica aqui
-    sheet.getCell('V24').value = { formula: 'V23 + V10' }; // Exemplo simples
 }
 
 
