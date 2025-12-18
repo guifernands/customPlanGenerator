@@ -38,7 +38,7 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     row1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFEFEF' } };
 
     row1.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-        if (colNumber <= 22 && colNumber != 20) {
+        if (colNumber <= 24 && colNumber != 20) {
             cell.border = { 
                 top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} 
             };
@@ -76,7 +76,8 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('U9').value = "Total Vendas Bruto";
     sheet.getCell('V9').value = { formula: 'SUM(F2:F40)' };
     sheet.getCell('W9').value = { formula: 'SUM(V7+V6+V5+V4)' };
-    sheet.getCell('X9').value = "REC DIA"; // add negrito!!!
+    sheet.getCell('X9').value = "REC DIA";
+    sheet.getCell('X9').font = { bold: true };
 
 
     sheet.getCell('U11').value = "Total Consulta Diário";
@@ -84,8 +85,9 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
     sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
-    sheet.getCell('W12').value = { formula: 'SUM(W9-W11)' };
+    sheet.getCell('W12').value = { formula: 'SUM(W9-V11)' }; 
     sheet.getCell('X12').value = "REC LIQ DIA";
+    sheet.getCell('X12').font = { bold: true };
 
 
     // lógica dia anterior
@@ -94,15 +96,10 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     if (nomeAbaAnterior) {
         // if existe dia anterior
-        sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; // prévio
-
-        sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; // previo acumulado
-
+        sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; // prévio líquido
+        sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; // prévio rec
         sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; // caixa inicial
-
         sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; // consultas inicial
-
-        sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; // consultas final
     } else {
         // if é o primeiro dia
         sheet.getCell('V13').value = 0;
@@ -115,6 +112,7 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('V14').value = { formula: 'V12+V13' }; 
     sheet.getCell('W14').value = { formula: 'W12+W13' }; 
     sheet.getCell('X14').value = "REC ACUM";
+    sheet.getCell('X14').font = { bold: true };
 
     sheet.getCell('U16').value = "Total Saldo Devedor";
     sheet.getCell('V16').value = { formula: 'SUM(M2:M40)' };
@@ -134,6 +132,7 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     sheet.getCell('U25').value = "Total Consultas Inicial";
     sheet.getCell('U26').value = "Total Consultas Final";
+    sheet.getCell('V26').value = { formula: 'SUM(V25+V11)' };
 }
 
 // botão
