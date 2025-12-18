@@ -75,12 +75,18 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     sheet.getCell('U9').value = "Total Vendas Bruto";
     sheet.getCell('V9').value = { formula: 'SUM(F2:F40)' };
+    sheet.getCell('W9').value = { formula: 'SUM(V7+V6+V5+V4)' };
+    sheet.getCell('X9').value = "REC DIA"; // add negrito!!!
 
-    sheet.getCell('U11').value = "Total Consulta";
+
+    sheet.getCell('U11').value = "Total Consulta Diário";
     sheet.getCell('V11').value = { formula: 'SUM(Q2:Q40)' };
 
     sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
     sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
+    sheet.getCell('W12').value = { formula: 'SUM(W9-W11)' };
+    sheet.getCell('X12').value = "REC LIQ DIA";
+
 
     // lógica dia anterior
     sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
@@ -88,16 +94,27 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     if (nomeAbaAnterior) {
         // if existe dia anterior
-        sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; 
-        sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; 
+        sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; // prévio
+
+        sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; // previo acumulado
+
+        sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; // caixa inicial
+
+        sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; // consultas inicial
+
+        sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; // consultas final
     } else {
         // if é o primeiro dia
         sheet.getCell('V13').value = 0;
+        sheet.getCell('W13').value = 0;
         sheet.getCell('V23').value = 0;
+        sheet.getCell('V25').value = 0;
     }
 
     sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
     sheet.getCell('V14').value = { formula: 'V12+V13' }; 
+    sheet.getCell('W14').value = { formula: 'W12+W13' }; 
+    sheet.getCell('X14').value = "REC ACUM";
 
     sheet.getCell('U16').value = "Total Saldo Devedor";
     sheet.getCell('V16').value = { formula: 'SUM(M2:M40)' };
@@ -114,6 +131,9 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('U22').value = "Total Sangria";
     sheet.getCell('U24').value = "Total em Caixa Final";
     sheet.getCell('V24').value = { formula: '(V4+V23)-V22-V19' };
+
+    sheet.getCell('U25').value = "Total Consultas Inicial";
+    sheet.getCell('U26').value = "Total Consultas Final";
 }
 
 // botão
