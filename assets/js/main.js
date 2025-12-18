@@ -133,6 +133,34 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     sheet.getCell('U25').value = "Total Consultas Inicial";
     sheet.getCell('U26').value = "Total Consultas Final";
     sheet.getCell('V26').value = { formula: 'SUM(V25+V11)' };
+
+    // estilização básica geral
+    const colunasMonetarias = ['F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'V', 'W'];
+
+    for (let i = 2; i <= 40; i++) {
+        colunasMonetarias.forEach(col => {
+            const cell = sheet.getCell(`${col}${i}`);
+            
+            cell.numFmt = '"R$ "#,##0.00'; 
+            
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+
+        const cellSaida = sheet.getCell(`R${i}`);
+        if(cellSaida) cellSaida.font = { color: { argb: 'FFFF0000' } };
+    }
+
+    const linhasResumo = [4,5,6,7,8,9,11,12,13,14,16,17,19,20,22,23,24,25,26];
+    
+    linhasResumo.forEach(linha => {
+        ['U', 'V', 'W', 'X'].forEach(col => {
+            const cell = sheet.getCell(`${col}${linha}`);
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9FA' } };
+            cell.border = { bottom: {style:'dotted', color: {argb:'FFAAAAAA'}} };
+        });
+    });
+
+    sheet.getColumn('liq').numFmt = '"R$ "#,##0.00';
 }
 
 // botão
