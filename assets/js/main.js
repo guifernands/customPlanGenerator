@@ -3,7 +3,6 @@ const btnGerar = document.getElementById('btnGerar');
 const feriados = [ '01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '25/12' ];
 
 // configs planilha
-// Note que adicionei um novo parâmetro: 'nomeAbaAnterior'
 function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     const sheet = workbook.addWorksheet(nomeDaAba.replace('/', '-'));
 
@@ -26,8 +25,8 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
         { header: 'Pag CC', key: 'pg3', width: 12 },           // P
         { header: 'Consulta', key: 'consulta', width: 12 },    // Q
         { header: 'Saída', key: 'saida', width: 12 },          // R
-        { header: 'Total Liq', key: 'liq', width: 15 },        // S (Vai ser ROSA)
-        { header: '', key: 'vazio', width: 5 },                // T (Espaço)
+        { header: 'Venda', key: 'liq', width: 15 },        // S
+        { header: '', key: 'vazio', width: 5 },                // T
         { header: 'RESUMO', key: 'res_label', width: 22 },     // U
         { header: '', key: 'res_valor', width: 15 }            // V
     ];
@@ -41,34 +40,53 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
         fgColor: { argb: 'FFEFEFEF' } 
     };
 
-    // "Total Liq" (S) de ROSA até a linha 35
+    // "Vendas" (S) de ROSA até a linha 35
     for(let i = 1; i <= 35; i++) {
         const cell = sheet.getCell(`S${i}`);
         cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FFEBCEE3' } // Rosa Claro (Igual da foto)
+            fgColor: { argb: 'FFEBCEE3' }
         };
     }
 
-    // --- AQUI ENTRAM AS FÓRMULAS E O RESUMO LATERAL ---
-    
-    // Exemplo: Colocando rótulos fixos na coluna U (Resumo)
-    sheet.getCell('U4').value = "RELATÓRIO DIÁRIO";
-    sheet.getCell('U5').value = "Total dinheiro";
-    sheet.getCell('U6').value = "Total CD";
-    sheet.getCell('U7').value = "Total CC";
-    sheet.getCell('U8').value = "PIX";
-    sheet.getCell('U9').value = "Crediário";
-    sheet.getCell('U10').value = "Total Vendas Bruto";
+    // coluna resumos em negrito
+    sheet.getColumn('res_label').font = { 
+    name: 'Arial',
+    bold: true 
+};
+
+    // LATERAL 
+    sheet.getCell('U4').value = "Total dinheiro";
+    sheet.getCell('V4').value = { formula: 'SUM(G2:G40)' };
+
+    sheet.getCell('U5').value = "Total CD";
+    sheet.getCell('V5').value = { formula: 'SUM(F2:F32)' };
+
+    sheet.getCell('U6').value = "Total CC";
+    sheet.getCell('U7').value = "PIX";
+    sheet.getCell('U8').value = "Crediário";
+    sheet.getCell('U9').value = "Total Vendas Bruto";
+
+    sheet.getCell('U11').value = "Total Consulta";
+    sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
+    sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
+    sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
+
+    sheet.getCell('U16').value = "Total Saldo Devedor";
+    sheet.getCell('U17').value = "Total Saldo Pago";
+
+    sheet.getCell('U19').value = "Total Saída";
+    sheet.getCell('U20').value = "Total Líquido Diário";
+
+    sheet.getCell('U22').value = "Total Saída";
     sheet.getCell('U23').value = "Total em Caixa Inicial";
     sheet.getCell('U24').value = "Total em Caixa Final";
 
     // --- FÓRMULAS LOCAIS (DENTRO DA MESMA PLANILHA) ---
     // Sintaxe: { formula: 'SOMA(A1:A10)' }
     
-    // Exemplo: Total de vendas (Soma da coluna F, linhas 2 a 32)
-    sheet.getCell('V10').value = { formula: 'SUM(F2:F32)' }; 
+    // Exemplo: Total de vendas (Soma da coluna F, linhas 2 a 32) 
     
     // --- FÓRMULA QUE PUXA DO DIA ANTERIOR (O PULO DO GATO) ---
     // Onde: V23 é o Caixa Inicial
