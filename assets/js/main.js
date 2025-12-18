@@ -56,27 +56,46 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
     bold: true 
 };
 
-    // LATERAL 
+    // TOTAIS LATERAL COM FÓRMULAS 
     sheet.getCell('U4').value = "Total dinheiro";
     sheet.getCell('V4').value = { formula: 'SUM(G2:G40)' };
 
     sheet.getCell('U5').value = "Total CD";
-    sheet.getCell('V5').value = { formula: 'SUM(F2:F32)' };
+    sheet.getCell('V5').value = { formula: 'SUM(H2:H40)' };
 
     sheet.getCell('U6').value = "Total CC";
+    sheet.getCell('V6').value = { formula: 'SUM(I2:I40)' };
+
     sheet.getCell('U7').value = "PIX";
+    sheet.getCell('V7').value = { formula: 'SUM(L2:L40)' };
+
     sheet.getCell('U8').value = "Crediário";
+    sheet.getCell('V8').value = { formula: 'SUM(K2:K40)' };
+
     sheet.getCell('U9').value = "Total Vendas Bruto";
+    sheet.getCell('V9').value = { formula: 'SUM(F2:F40)' };
 
     sheet.getCell('U11').value = "Total Consulta";
+    sheet.getCell('V11').value = { formula: 'SUM(Q2:Q40)' };
+
     sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
+    sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
+
     sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
+    sheet.getCell('V13').value = 0; // sem fórmula?
+
     sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
+    sheet.getCell('V14').value = { formula: 'SUM(V12:V13)' };
 
     sheet.getCell('U16').value = "Total Saldo Devedor";
+    sheet.getCell('V16').value = { formula: 'SUM(M2:M40)' };
+
     sheet.getCell('U17').value = "Total Saldo Pago";
+    sheet.getCell('V10').value = { formula: 'SUM(N2:P40)' };
 
     sheet.getCell('U19').value = "Total Saída";
+    sheet.getCell('V10').value = { formula: 'SUM(F2:F32)' };
+
     sheet.getCell('U20').value = "Total Líquido Diário";
 
     sheet.getCell('U22').value = "Total Saída";
