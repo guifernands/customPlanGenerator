@@ -40,6 +40,19 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
         fgColor: { argb: 'FFEFEFEF' } 
     };
 
+    // borda no cabeçalho
+    row1.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        if (colNumber <= 22) {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        }
+    });
+
     // "Vendas" (S) de ROSA até a linha 35
     for(let i = 1; i <= 40; i++) {
         const cell = sheet.getCell(`S${i}`);
@@ -53,9 +66,12 @@ function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
 
     // coluna resumos em negrito
     sheet.getColumn('res_label').font = { 
-    name: 'Arial',
-    bold: true 
-};
+        name: 'Arial',
+        bold: true 
+    };
+
+    // faz o merge das células
+    sheet.mergeCells('U1:V1');
 
     // TOTAIS LATERAL COM FÓRMULAS 
     sheet.getCell('U4').value = "Total dinheiro";
