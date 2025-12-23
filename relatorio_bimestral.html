@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Planilhas - Vendas</title>
-    
-    <style>
-        @charset "UTF-8";
+    <title>Gerador de Relatórios de Vendas</title>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <style>
         body {
-            font-family: Verdana;
-            background-color: #1E1E1E;
-            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,80 +19,84 @@
             margin: 0;
         }
 
-        .container {
-            background-color: #303134;
+        .card {
+            background-color: white;
             padding: 2rem;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             text-align: center;
             width: 350px;
         }
 
-        h1 { 
-            font-size: 1.5rem; margin-bottom: 0.5rem;
-        }
-
-        p { 
-            color: rgba(255, 255, 255, 0.568);
-            font-size: 0.9rem;
+        h2 {
+            color: #333;
             margin-bottom: 1.5rem;
         }
 
-        .input-group { 
+        .input-group {
+            margin-bottom: 1.5rem;
             text-align: left;
-            margin-bottom: 1.5rem;
         }
-        label { 
+
+        label {
             display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: 600;
         }
 
         input[type="month"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 2px solid #ddd;
             border-radius: 6px;
             font-size: 1rem;
-            box-sizing: border-box;
+            box-sizing: border-box; /* Garante que o padding não estoure a largura */
         }
 
         button {
-            background-color: #007bff;
+            background-color: #28a745; /* Verde Excel */
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
             width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        button:hover { background-color: #0056b3; }
-    </style>
+        button:hover {
+            background-color: #218838;
+        }
 
-    <!-- biblioteca ExcelJS (customização da planilha) e FileSaver (download da planilha) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        .footer {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Gerador de Caixa</h1>
+    <div class="card">
+        <h2>📊 Relatório Bimestral</h2>
         
         <div class="input-group">
-            <label for="mesInput">Mês Inicial:</label>
+            <label for="mesInput">Selecione o Mês Inicial:</label>
             <input type="month" id="mesInput">
         </div>
 
-        <p>Essa aplicação gera o mês selecionado e o PRÓXIMO mês do selecionado</p>
+        <button id="btnGerar">Baixar Planilha .xlsx</button>
 
-        <button id="btnGerar">Baixar Planilha</button>
-        <p id="status"></p>
+        <div class="footer">Sistema Automatizado de Vendas</div>
     </div>
 
     <script>
         const btnGerar = document.getElementById('btnGerar');
 
+        // feriados
         const feriados = [ '01/01', '21/04', '01/05', '07/09', '12/10', '02/11', '15/11', '25/12' ];
 
         function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
@@ -121,12 +125,13 @@
                 { header: 'Venda', key: 'liq', width: 15 },            // S
                 { header: '', key: 'vazio', width: 5 },                // T
                 { header: 'RESUMO', key: 'res_label', width: 22 },     // U
-                { header: '', key: 'res_valor', width: 15 }            // V
+                { header: '', key: 'res_valor', width: 15 },           // V
+                { header: '', key: 'rec_valor', width: 15 },           // W
+                { header: '', key: 'rec_label', width: 15 }            // X
             ];
 
-            // estilo cabeçalho
+            // cabeçalho planilha
             const row1 = sheet.getRow(1);
-            
             row1.font = { bold: true };
             row1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFEFEF' } };
 
@@ -139,14 +144,14 @@
                 }
             });
 
-            // coluna vendas rosa e fórmulas
+            // coluna de vendas (rosa)
             for(let i = 1; i <= 40; i++) {
                 const cell = sheet.getCell(`S${i}`);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBCEE3' } };
                 if (i >= 2) cell.value = { formula: `SUM(F${i}+Q${i})` };
             }
 
-            // estilos pontuais
+            // adicionais
             sheet.getColumn('res_label').font = { name: 'Arial', bold: true };
             sheet.mergeCells('U1:V1');
 
@@ -168,38 +173,42 @@
 
             sheet.getCell('U9').value = "Total Vendas Bruto";
             sheet.getCell('V9').value = { formula: 'SUM(F2:F40)' };
+            
             sheet.getCell('W9').value = { formula: 'SUM(V7+V6+V5+V4)' };
-            sheet.getCell('X9').value = "REC DIA";
+            sheet.getCell('X9').value = "REC DIA"; 
             sheet.getCell('X9').font = { bold: true };
-
 
             sheet.getCell('U11').value = "Total Consulta Diário";
             sheet.getCell('V11').value = { formula: 'SUM(Q2:Q40)' };
 
             sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
             sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
+            
             sheet.getCell('W12').value = { formula: 'SUM(W9-V11)' }; 
             sheet.getCell('X12').value = "REC LIQ DIA";
             sheet.getCell('X12').font = { bold: true };
 
-
             // lógica dia anterior
             sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
             sheet.getCell('U23').value = "Total em Caixa Inicial";
+            sheet.getCell('U25').value = "Total Consultas Inicial";
+            sheet.getCell('U26').value = "Total Consultas Final";
 
             if (nomeAbaAnterior) {
-                // if existe dia anterior
-                sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; // prévio líquido
-                sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; // prévio rec
-                sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; // caixa inicial
-                sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; // consultas inicial
+                // if existe dia anterior, puxa os dados
+                sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; 
+                sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; 
+                sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; 
+                sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; 
             } else {
-                // if é o primeiro dia
+                // primeiro dia zerado
                 sheet.getCell('V13').value = 0;
                 sheet.getCell('W13').value = 0;
                 sheet.getCell('V23').value = 0;
-                sheet.getCell('V25').value = 0;
+                sheet.getCell('V25').value = 0; 
             }
+
+            sheet.getCell('V26').value = { formula: 'SUM(V25+V11)' };
 
             sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
             sheet.getCell('V14').value = { formula: 'V12+V13' }; 
@@ -223,36 +232,26 @@
             sheet.getCell('U24').value = "Total em Caixa Final";
             sheet.getCell('V24').value = { formula: '(V4+V23)-V22-V19' };
 
-            sheet.getCell('U25').value = "Total Consultas Inicial";
-            sheet.getCell('U26').value = "Total Consultas Final";
-            sheet.getCell('V26').value = { formula: 'SUM(V25+V11)' };
-
-            // estilização básica geral
+            // R$
             const colunasMonetarias = ['F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'V', 'W'];
-
             for (let i = 2; i <= 40; i++) {
                 colunasMonetarias.forEach(col => {
                     const cell = sheet.getCell(`${col}${i}`);
-                    
                     cell.numFmt = '"R$ "#,##0.00'; 
-                    
                     cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 });
-
                 const cellSaida = sheet.getCell(`R${i}`);
-                if(cellSaida) cellSaida.font = { color: { argb: 'FFFF0000' } };
+                if(cellSaida) cellSaida.font = { color: { argb: 'FFFF0000' } }; 
             }
-
-            const linhasResumo = [4,5,6,7,8,9,11,12,13,14,16,17,19,20,22,23,24,25,26];
             
+            const linhasResumo = [4,5,6,7,8,9,11,12,13,14,16,17,19,20,22,23,24,25,26];
             linhasResumo.forEach(linha => {
                 ['U', 'V', 'W', 'X'].forEach(col => {
                     const cell = sheet.getCell(`${col}${linha}`);
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9FA' } };
-                    cell.border = { bottom: {style:'dotted', color: {argb:'FFAAAAAA'}} };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9FA' } }; 
+                    cell.border = { bottom: {style:'dotted', color: {argb:'FFAAAAAA'}} }; 
                 });
             });
-
             sheet.getColumn('liq').numFmt = '"R$ "#,##0.00';
         }
 
@@ -269,26 +268,24 @@
             const ano = partes[0];
             const mes = partes[1];
 
+            // Criar Arquivo
             const workbook = new ExcelJS.Workbook();
             workbook.creator = "Sistema de Vendas";
             
-            // Variável para guardar a aba anterior
             let nomeAbaAnterior = null;
-            
             let dataCorrente = new Date(ano, mes - 1, 1);
 
             console.clear();
-            console.log("--- Iniciando Cálculo Bimestral ---");
+            console.log("--- Iniciando Geração ---");
 
+            // loop bimestral
             for(let i = 0; i < 2; i++) {
                 let anoLoop = dataCorrente.getFullYear();
                 let mesLoop = dataCorrente.getMonth();
                 let ultimoDia = new Date(anoLoop, mesLoop + 1, 0).getDate();
 
-                console.log(`\n🔎 Mês ${mesLoop + 1}/${anoLoop} tem ${ultimoDia} dias.`);
-
+                // dias
                 for (let dia = 1; dia <= ultimoDia; dia++) {
-                    
                     let dataDoDia = new Date(anoLoop, mesLoop, dia);
                     let diaSemana = dataDoDia.getDay();
 
@@ -296,8 +293,8 @@
                     let mesTexto = String(mesLoop + 1).padStart(2, '0');
                     let chaveData = `${diaTexto}/${mesTexto}`;
 
+                    // dias uteis
                     if (diaSemana !== 0 && !feriados.includes(chaveData)) {
-                        
                         desenharAbaDia(workbook, chaveData, nomeAbaAnterior);
                         nomeAbaAnterior = chaveData.replace('/', '-');
                     }
@@ -305,10 +302,10 @@
                 dataCorrente.setMonth(dataCorrente.getMonth() + 1);
             }
 
-            // Download
+            // download
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-            saveAs(blob, `plan_bimestral_vendas${inputData}.xlsx`);
+            saveAs(blob, `relatorio_bi_vendas${inputData}.xlsx`);
         });
     </script>
 </body>
