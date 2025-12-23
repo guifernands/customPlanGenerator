@@ -102,7 +102,6 @@
         function desenharAbaDia(workbook, nomeDaAba, nomeAbaAnterior) {
             const sheet = workbook.addWorksheet(nomeDaAba.replace('/', '-'));
 
-            // colunas
             sheet.columns = [
                 { header: 'Vendedor', key: 'vendedor', width: 10 },    // A
                 { header: 'NF/COMP', key: 'nf', width: 12 },           // B
@@ -130,7 +129,7 @@
                 { header: '', key: 'rec_label', width: 15 }            // X
             ];
 
-            // cabeçalho planilha
+            // cabeçalho style
             const row1 = sheet.getRow(1);
             row1.font = { bold: true };
             row1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEFEFEF' } };
@@ -144,14 +143,14 @@
                 }
             });
 
-            // coluna de vendas (rosa)
+            // coluna vendas (rosa)
             for(let i = 1; i <= 40; i++) {
                 const cell = sheet.getCell(`S${i}`);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBCEE3' } };
                 if (i >= 2) cell.value = { formula: `SUM(F${i}+Q${i})` };
             }
 
-            // adicionais
+            // Estilos visuais extras
             sheet.getColumn('res_label').font = { name: 'Arial', bold: true };
             sheet.mergeCells('U1:V1');
 
@@ -178,37 +177,45 @@
             sheet.getCell('X9').value = "REC DIA"; 
             sheet.getCell('X9').font = { bold: true };
 
-            sheet.getCell('U11').value = "Total Consulta Diário";
-            sheet.getCell('V11').value = { formula: 'SUM(Q2:Q40)' };
+            sheet.getCell('U27').value = "RESUMO CONSULTAS";
+            sheet.getCell('U27').font = { bold: true, size: 10 };
+            
+            sheet.getCell('U28').value = "Total Consultas Inicial";
+            sheet.getCell('U29').value = "Total Consulta Diário";
+            sheet.getCell('U30').value = "Total Consultas Final";
+
+            // lógica do dia anterior
+            if (nomeAbaAnterior) {
+                sheet.getCell('V28').value = { formula: `'${nomeAbaAnterior}'!V30` }; 
+            } else {
+                sheet.getCell('V28').value = 0;
+            }
+
+            sheet.getCell('V29').value = { formula: 'SUM(Q2:Q40)' };
+
+            sheet.getCell('V30').value = { formula: 'SUM(V28+V29)' };
 
             sheet.getCell('U12').value = "Total Vendas Líquido do Dia";
-            sheet.getCell('V12').value = { formula: 'SUM(V9-V11)' };
+            sheet.getCell('V12').value = { formula: 'SUM(V9-V29)' }; 
             
-            sheet.getCell('W12').value = { formula: 'SUM(W9-V11)' }; 
+            sheet.getCell('W12').value = { formula: 'SUM(W9-V29)' }; 
             sheet.getCell('X12').value = "REC LIQ DIA";
             sheet.getCell('X12').font = { bold: true };
 
-            // lógica dia anterior
             sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
             sheet.getCell('U23').value = "Total em Caixa Inicial";
-            sheet.getCell('U25').value = "Total Consultas Inicial";
-            sheet.getCell('U26').value = "Total Consultas Final";
-
+            
             if (nomeAbaAnterior) {
-                // if existe dia anterior, puxa os dados
+                // if existe dia anterior, pega os dados
                 sheet.getCell('V13').value = { formula: `'${nomeAbaAnterior}'!V14` }; 
                 sheet.getCell('W13').value = { formula: `'${nomeAbaAnterior}'!W14` }; 
                 sheet.getCell('V23').value = { formula: `'${nomeAbaAnterior}'!V24` }; 
-                sheet.getCell('V25').value = { formula: `'${nomeAbaAnterior}'!V26` }; 
             } else {
-                // primeiro dia zerado
+                // if é o primeiro dia, começa zerado
                 sheet.getCell('V13').value = 0;
                 sheet.getCell('W13').value = 0;
                 sheet.getCell('V23').value = 0;
-                sheet.getCell('V25').value = 0; 
             }
-
-            sheet.getCell('V26').value = { formula: 'SUM(V25+V11)' };
 
             sheet.getCell('U14').value = "Total Vendas Líquido Acumulado";
             sheet.getCell('V14').value = { formula: 'V12+V13' }; 
@@ -232,7 +239,6 @@
             sheet.getCell('U24').value = "Total em Caixa Final";
             sheet.getCell('V24').value = { formula: '(V4+V23)-V22-V19' };
 
-            // R$
             const colunasMonetarias = ['F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'V', 'W'];
             for (let i = 2; i <= 40; i++) {
                 colunasMonetarias.forEach(col => {
@@ -244,7 +250,7 @@
                 if(cellSaida) cellSaida.font = { color: { argb: 'FFFF0000' } }; 
             }
             
-            const linhasResumo = [4,5,6,7,8,9,11,12,13,14,16,17,19,20,22,23,24,25,26];
+            const linhasResumo = [4,5,6,7,8,9,12,13,14,16,17,19,20,22,23,24, 27,28,29,30];
             linhasResumo.forEach(linha => {
                 ['U', 'V', 'W', 'X'].forEach(col => {
                     const cell = sheet.getCell(`${col}${linha}`);
@@ -252,6 +258,7 @@
                     cell.border = { bottom: {style:'dotted', color: {argb:'FFAAAAAA'}} }; 
                 });
             });
+            // R$ na coluna rosa
             sheet.getColumn('liq').numFmt = '"R$ "#,##0.00';
         }
 
@@ -268,7 +275,6 @@
             const ano = partes[0];
             const mes = partes[1];
 
-            // Criar Arquivo
             const workbook = new ExcelJS.Workbook();
             workbook.creator = "Sistema de Vendas";
             
@@ -278,13 +284,13 @@
             console.clear();
             console.log("--- Iniciando Geração ---");
 
-            // loop bimestral
+            // laço bimestral
             for(let i = 0; i < 2; i++) {
                 let anoLoop = dataCorrente.getFullYear();
                 let mesLoop = dataCorrente.getMonth();
                 let ultimoDia = new Date(anoLoop, mesLoop + 1, 0).getDate();
 
-                // dias
+                // laço dias
                 for (let dia = 1; dia <= ultimoDia; dia++) {
                     let dataDoDia = new Date(anoLoop, mesLoop, dia);
                     let diaSemana = dataDoDia.getDay();
@@ -293,7 +299,7 @@
                     let mesTexto = String(mesLoop + 1).padStart(2, '0');
                     let chaveData = `${diaTexto}/${mesTexto}`;
 
-                    // dias uteis
+                    // dias uteis (seg-sab)
                     if (diaSemana !== 0 && !feriados.includes(chaveData)) {
                         desenharAbaDia(workbook, chaveData, nomeAbaAnterior);
                         nomeAbaAnterior = chaveData.replace('/', '-');
@@ -305,7 +311,7 @@
             // download
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-            saveAs(blob, `relatorio_bi_vendas${inputData}.xlsx`);
+            saveAs(blob, `relatorio_vendas_${inputData}.xlsx`);
         });
     </script>
 </body>
