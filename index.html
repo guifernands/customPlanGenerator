@@ -308,7 +308,7 @@
             // Download
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-            saveAs(blob, `Relatorio_Vendas_${inputData}.xlsx`);
+            saveAs(blob, `plan_bimestral_vendas${inputData}.xlsx`);
         });
     </script>
 </body>
