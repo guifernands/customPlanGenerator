@@ -16,7 +16,7 @@ Desenvolvi este script para gerar automaticamente um arquivo `.xlsx` (ou `.csv`)
 
 ## 🛠️ Tecnologias Utilizadas
 - **Node.js**: Ambiente de execução.
-- **[Nome da Lib, ex: ExcelJS / FileSaveJS**: Para manipulação de planilhas.
+- **ExcelJS / FileSaveJS**: Para manipulação de planilhas e download de arquivos.
 - **JavaScript (ES6+)**: Lógica de automação.
 
 ## 📦 Como usar
