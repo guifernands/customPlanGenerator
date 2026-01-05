@@ -6,7 +6,7 @@
 Antes desta ferramenta, o processo de gerar as planilhas bimestrais era manual, sujeito a erros de digitação e consumia tempo desnecessário.
 
 ## A Solução
-Desenvolvi este script para gerar automaticamente um arquivo `.xlsx` (ou `.csv`) formatado e pronto para uso.
+Desenvolvi este script para gerar automaticamente um arquivo `.xlsx` formatado e pronto para uso.
 
 ### Principais Funcionalidades
 - [x] Geração automática de abas por bimestre.
