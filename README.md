@@ -1,11 +1,11 @@
-# 📊 Gerador de Planilhas Bimestral
+# Gerador de Planilhas Bimestral
 
 > Uma ferramenta de automação para gerar relatórios bimestrais padronizados, eliminando a necessidade de criação manual.
 
-## 💡 O Problema
+## O Problema
 Antes desta ferramenta, o processo de gerar as planilhas bimestrais era manual, sujeito a erros de digitação e consumia tempo desnecessário.
 
-## 🚀 A Solução
+## A Solução
 Desenvolvi este script para gerar automaticamente um arquivo `.xlsx` (ou `.csv`) formatado e pronto para uso.
 
 ### Principais Funcionalidades
@@ -14,12 +14,12 @@ Desenvolvi este script para gerar automaticamente um arquivo `.xlsx` (ou `.csv`)
 - [x] Cálculo automático de totais.
 - [x] Nomeação inteligente do arquivo com data e hora.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 - **Node.js**: Ambiente de execução.
 - **ExcelJS / FileSaveJS**: Para manipulação de planilhas e download de arquivos.
 - **JavaScript (ES6+)**: Lógica de automação.
 
-## 📦 Como usar
+## Como usar
 
 1. Clone o repositório:
    ```bash
