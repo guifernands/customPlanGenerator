@@ -147,7 +147,7 @@
             for(let i = 1; i <= 40; i++) {
                 const cell = sheet.getCell(`S${i}`);
                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBCEE3' } };
-                if (i >= 2) cell.value = { formula: `SUM(F${i}+Q${i})` };
+                if (i >= 2) cell.value = { formula: `SUM(F${i}-Q${i})` };
             }
 
             // Estilos visuais extras
@@ -201,6 +201,9 @@
             sheet.getCell('W12').value = { formula: 'SUM(W9-V29)' }; 
             sheet.getCell('X12').value = "REC LIQ DIA";
             sheet.getCell('X12').font = { bold: true };
+
+            sheet.getCell('X13').value = "REC ACUM PREV";
+            sheet.getCell('X13').font = { bold: true };
 
             sheet.getCell('U13').value = "Total Vendas Líquido Prévio";
             sheet.getCell('U23').value = "Total em Caixa Inicial";
