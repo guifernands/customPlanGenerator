@@ -246,7 +246,6 @@
             for (let i = 2; i <= 40; i++) {
                 colunasMonetarias.forEach(col => {
                     const cell = sheet.getCell(`${col}${i}`);
-                    cell.numFmt = '"R$ "#,##0.00'; 
                     cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 });
                 const cellSaida = sheet.getCell(`R${i}`);
@@ -261,8 +260,6 @@
                     cell.border = { bottom: {style:'dotted', color: {argb:'FFAAAAAA'}} }; 
                 });
             });
-            // R$ na coluna rosa
-            sheet.getColumn('liq').numFmt = '"R$ "#,##0.00';
         }
 
         // botão
